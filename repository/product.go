@@ -11,11 +11,11 @@ type IProductRepository interface {
 
 	Update(product model.Product) (bool, error)
 
-	GetById(id int64) (*model.Product, error)
-
 	Delete(id int64) (bool, error)
 
 	ExistById(id int64) bool
+
+	GetById(id int64) (*model.Product, error)
 }
 
 type ProductRepository struct {
@@ -49,18 +49,6 @@ func (productRepository *ProductRepository) Update(product model.Product) (bool,
 	return true, nil
 }
 
-func (productRepository *ProductRepository) GetById(id int64) (*model.Product, error) {
-	product := new(model.Product)
-
-	err := productRepository.DB.Where("id=?", id).First(product).Error
-	if err != nil {
-		log.Println("product查询失败")
-		return nil, err
-	}
-
-	return product, nil
-}
-
 func (productRepository *ProductRepository) Delete(id int64) (bool, error) {
 	err := productRepository.DB.Where("id=?", id).Delete(model.Product{}).Error
 	if err != nil {
@@ -71,11 +59,24 @@ func (productRepository *ProductRepository) Delete(id int64) (bool, error) {
 	return true, nil
 }
 
-func (productRepository *ProductRepository) ExistById(id int) bool {
+func (productRepository *ProductRepository) ExistById(id int64) bool {
 	err := productRepository.DB.Where("id=?", id).First(model.Product{}).Error
 	if err != nil {
 		return false
 	}
 
 	return true
+}
+
+
+func (productRepository *ProductRepository) GetById(id int64) (*model.Product, error) {
+	product := new(model.Product)
+
+	err := productRepository.DB.Where("id=?", id).First(product).Error
+	if err != nil {
+		log.Println("product查询失败")
+		return nil, err
+	}
+
+	return product, nil
 }

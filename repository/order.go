@@ -7,9 +7,9 @@ import (
 )
 
 type IOrderRepository interface {
-	Create(product model.Order) (*model.Order, error)
+	Create(order model.Order) (*model.Order, error)
 
-	Update(product model.Order) (bool, error)
+	Update(order model.Order) (bool, error)
 
 	GetById(id int64) (*model.Order, error)
 
@@ -22,57 +22,58 @@ type OrderRepository struct {
 	DB gorm.DB
 }
 
-func (OrderRepository *OrderRepository) Create(product model.Product) (*model.Product, error) {
-	err := OrderRepository.DB.Create(product).Error
+func (orderRepository *OrderRepository) Create(order *model.Order) (*model.Order, error) {
+	err := orderRepository.DB.Create(order).Error
 	if err != nil {
-		log.Println("product创建失败")
-		return &product, err
+		log.Println("order创建失败")
+		return &order, err
 	}
 
-	return &product, nil
+	return &order, nil
 }
 
-func (OrderRepository *OrderRepository) Update(product model.Product) (bool, error) {
-	originProduct := new(model.Product)
+func (orderRepository *OrderRepository) Update(order model.Order) (bool, error) {
+	originOrder := new(model.Order)
 
-	err := OrderRepository.DB.Where("id=?", product.ID).First(originProduct).Updates(map[string]interface{}{
-		"product_name":  product.ProductName,
-		"product_image": product.ProductImage,
-		"product_price": product.ProductPrice,
+	err := orderRepository.DB.Where("id=?", order.ID).First(originOrder).Updates(map[string]interface{}{
+		"user_id":  order.UserId,
+		"product_id": order.ProductId,
+		"num": order.Num,
+		"money": order.Money,
 	}).Error
 
 	if err != nil {
-		log.Println("product更新失败")
+		log.Println("order更新失败")
 		return false, err
 	}
 
 	return true, nil
 }
 
-func (OrderRepository *OrderRepository) GetById(id int64) (*model.Product, error) {
-	product := new(model.Product)
+func (orderRepository *OrderRepository) GetById(id int64) (*model.Order, error) {
+	order := new(model.Order)
 
-	err := OrderRepository.DB.Where("id=?", id).First(product).Error
+	err := orderRepository.DB.Where("id=?", id).First(order).Error
 	if err != nil {
-		log.Println("product查询失败")
+		log.Println("order查询失败")
 		return nil, err
 	}
 
-	return product, nil
+	return order, nil
 }
 
-func (OrderRepository *OrderRepository) Delete(id int64) (bool, error) {
-	err := OrderRepository.DB.Where("id=?", id).Delete(model.Product{}).Error
+func (orderRepository *OrderRepository) Delete(id int64) (bool, error) {
+	err := orderRepository.DB.Where("id=?", id).Delete(model.Order{}).Error
 	if err != nil {
-		log.Println("product删除失败")
+		log.Println("order删除失败")
 		return false, err
 	}
 
 	return true, nil
 }
 
-func (OrderRepository *OrderRepository) ExistById(id int) bool {
-	err := OrderRepository.DB.Where("id=?", id).First(model.Product{}).Error
+func (orderRepository *OrderRepository) ExistById(id int64) bool {
+	err := orderRepository.DB.Where("id=?", id).First(model.Order{}).Error
 	if err != nil {
 		return false
 	}
