@@ -6,7 +6,7 @@ import (
 	"mall/model"
 )
 
-type IOrderRepository interface {
+type OrderRepository interface {
 	Create(order model.Order) (*model.Order, error)
 
 	Update(order model.Order) (bool, error)
@@ -18,11 +18,17 @@ type IOrderRepository interface {
 	ExistById(id int64) bool
 }
 
-type OrderRepository struct {
-	DB gorm.DB
+type orderRepository struct {
+	DB *gorm.DB
 }
 
-func (orderRepository *OrderRepository) Create(order *model.Order) (*model.Order, error) {
+func NewOrderRepository(db *gorm.DB) OrderRepository {
+	return &orderRepository{
+		DB: db,
+	}
+}
+
+func (orderRepository *orderRepository) Create(order model.Order) (*model.Order, error) {
 	err := orderRepository.DB.Create(order).Error
 	if err != nil {
 		log.Println("order创建失败")
@@ -32,14 +38,14 @@ func (orderRepository *OrderRepository) Create(order *model.Order) (*model.Order
 	return &order, nil
 }
 
-func (orderRepository *OrderRepository) Update(order model.Order) (bool, error) {
+func (orderRepository *orderRepository) Update(order model.Order) (bool, error) {
 	originOrder := new(model.Order)
 
 	err := orderRepository.DB.Where("id=?", order.ID).First(originOrder).Updates(map[string]interface{}{
-		"user_id":  order.UserId,
+		"user_id":    order.UserId,
 		"product_id": order.ProductId,
-		"num": order.Num,
-		"money": order.Money,
+		"num":        order.Num,
+		"money":      order.Money,
 	}).Error
 
 	if err != nil {
@@ -50,7 +56,7 @@ func (orderRepository *OrderRepository) Update(order model.Order) (bool, error) 
 	return true, nil
 }
 
-func (orderRepository *OrderRepository) GetById(id int64) (*model.Order, error) {
+func (orderRepository *orderRepository) GetById(id int64) (*model.Order, error) {
 	order := new(model.Order)
 
 	err := orderRepository.DB.Where("id=?", id).First(order).Error
@@ -62,7 +68,7 @@ func (orderRepository *OrderRepository) GetById(id int64) (*model.Order, error) 
 	return order, nil
 }
 
-func (orderRepository *OrderRepository) Delete(id int64) (bool, error) {
+func (orderRepository *orderRepository) Delete(id int64) (bool, error) {
 	err := orderRepository.DB.Where("id=?", id).Delete(model.Order{}).Error
 	if err != nil {
 		log.Println("order删除失败")
@@ -72,7 +78,7 @@ func (orderRepository *OrderRepository) Delete(id int64) (bool, error) {
 	return true, nil
 }
 
-func (orderRepository *OrderRepository) ExistById(id int64) bool {
+func (orderRepository *orderRepository) ExistById(id int64) bool {
 	err := orderRepository.DB.Where("id=?", id).First(model.Order{}).Error
 	if err != nil {
 		return false

@@ -5,7 +5,7 @@ import (
 	"mall/repository"
 )
 
-type IOrder interface {
+type OrderService interface {
 	Create(order model.Order) (*model.Order, error)
 	Update(order model.Order) (bool, error)
 	Delete(id int64) (bool, error)
@@ -13,26 +13,32 @@ type IOrder interface {
 	GetById(id int64) (*model.Order, error)
 }
 
-type OrderService struct {
+type orderService struct {
 	orderRepository repository.OrderRepository
 }
 
-func (orderService *OrderService) Create(order *model.Order) (*model.Order, error) {
+func NewOrderService(orderRepository repository.OrderRepository) OrderService {
+	return &orderService{
+		orderRepository: orderRepository,
+	}
+}
+
+func (orderService *orderService) Create(order model.Order) (*model.Order, error) {
 	return orderService.orderRepository.Create(order)
 }
 
-func (orderService *OrderService) Update(order model.Order) (bool, error) {
+func (orderService *orderService) Update(order model.Order) (bool, error) {
 	return orderService.orderRepository.Update(order)
 }
 
-func (orderService *OrderService) Delete(id int64) (bool, error) {
+func (orderService *orderService) Delete(id int64) (bool, error) {
 	return orderService.orderRepository.Delete(id)
 }
 
-func (orderService *OrderService) ExistById(id int64) bool{
+func (orderService *orderService) ExistById(id int64) bool {
 	return orderService.orderRepository.ExistById(id)
 }
 
-func (orderService *OrderService) GetById(id int64) (*model.Order, error) {
+func (orderService *orderService) GetById(id int64) (*model.Order, error) {
 	return orderService.orderRepository.GetById(id)
 }

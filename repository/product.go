@@ -6,24 +6,26 @@ import (
 	"mall/model"
 )
 
-type IProductRepository interface {
+type ProductRepository interface {
 	Create(product model.Product) (*model.Product, error)
-
 	Update(product model.Product) (bool, error)
-
 	Delete(id int64) (bool, error)
-
 	ExistById(id int64) bool
-
 	GetById(id int64) (*model.Product, error)
 }
 
-type ProductRepository struct {
+type productRepository struct {
 	DB *gorm.DB
 }
 
-func (productRepository *ProductRepository) Create(product model.Product) (*model.Product, error) {
-	err := productRepository.DB.Create(product).Error
+func NewProductRepository(db *gorm.DB) ProductRepository {
+	return &productRepository{
+		DB: db,
+	}
+}
+
+func (productRepository *productRepository) Create(product model.Product) (*model.Product, error) {
+	err := productRepository.DB.Create(&product).Error
 	if err != nil {
 		log.Println("product创建失败")
 		return &product, err
@@ -32,7 +34,7 @@ func (productRepository *ProductRepository) Create(product model.Product) (*mode
 	return &product, nil
 }
 
-func (productRepository *ProductRepository) Update(product model.Product) (bool, error) {
+func (productRepository *productRepository) Update(product model.Product) (bool, error) {
 	originProduct := new(model.Product)
 
 	err := productRepository.DB.Where("id=?", product.ID).First(originProduct).Updates(map[string]interface{}{
@@ -49,7 +51,7 @@ func (productRepository *ProductRepository) Update(product model.Product) (bool,
 	return true, nil
 }
 
-func (productRepository *ProductRepository) Delete(id int64) (bool, error) {
+func (productRepository *productRepository) Delete(id int64) (bool, error) {
 	err := productRepository.DB.Where("id=?", id).Delete(model.Product{}).Error
 	if err != nil {
 		log.Println("product删除失败")
@@ -59,7 +61,7 @@ func (productRepository *ProductRepository) Delete(id int64) (bool, error) {
 	return true, nil
 }
 
-func (productRepository *ProductRepository) ExistById(id int64) bool {
+func (productRepository *productRepository) ExistById(id int64) bool {
 	err := productRepository.DB.Where("id=?", id).First(model.Product{}).Error
 	if err != nil {
 		return false
@@ -68,8 +70,7 @@ func (productRepository *ProductRepository) ExistById(id int64) bool {
 	return true
 }
 
-
-func (productRepository *ProductRepository) GetById(id int64) (*model.Product, error) {
+func (productRepository *productRepository) GetById(id int64) (*model.Product, error) {
 	product := new(model.Product)
 
 	err := productRepository.DB.Where("id=?", id).First(product).Error

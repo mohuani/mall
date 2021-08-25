@@ -7,36 +7,45 @@ import (
 	"net/http"
 )
 
+type OrderController interface {
+	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
+}
 
-type OrderController struct {
+type orderController struct {
 	orderService service.OrderService
 }
 
-func (orderController *OrderController) Create(c *gin.Context)  {
-	order := new(model.Order)
+func NewOrderController(orderService service.OrderService) OrderController {
+	return &orderController{
+		orderService: orderService,
+	}
+}
 
-	err := c.ShouldBindJSON(&order)
+func (orderController *orderController) Create(ctx *gin.Context) {
+	var order model.Order
+
+	err := ctx.ShouldBindJSON(&order)
 	if err != nil {
 
 	}
 
 	orderRes, err := orderController.orderService.Create(order)
 
-	c.JSON(http.StatusOK, gin.H{"msg": orderRes})
+	ctx.JSON(http.StatusOK, gin.H{"msg": orderRes})
 }
 
-func (orderController *OrderController) Update(c *gin.Context)  {
-	order := new(model.Order)
-
-	err := c.ShouldBindJSON(&order)
+func (orderController *orderController) Update(ctx *gin.Context) {
+	var order model.Order
+	err := ctx.ShouldBindJSON(&order)
 	if err != nil {
 
 	}
 
-	res, err := orderController.orderService.Create(order)
+	res, err := orderController.orderService.Update(order)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": false})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"msg": false})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"msg": res})
+	ctx.JSON(http.StatusOK, gin.H{"msg": res})
 }

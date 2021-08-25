@@ -5,34 +5,40 @@ import (
 	"mall/repository"
 )
 
-type IProduct interface {
+type ProductService interface {
 	Create(product model.Product) (*model.Product, error)
 	Update(product model.Product) (bool, error)
 	Delete(id int64) (bool, error)
 	ExistById(id int64) bool
-	GetById(id int64) (bool, error)
+	GetById(id int64) (*model.Product, error)
 }
 
-type ProductService struct {
+type productService struct {
 	productRepository repository.ProductRepository
 }
 
-func (productService *ProductService) Create(product model.Product) (*model.Product, error){
+func NewProductService(productRepository repository.ProductRepository) ProductService {
+	return &productService{
+		productRepository: productRepository,
+	}
+}
+
+func (productService *productService) Create(product model.Product) (*model.Product, error) {
 	return productService.productRepository.Create(product)
 }
 
-func (productService *ProductService) Update(product model.Product) (bool, error) {
+func (productService *productService) Update(product model.Product) (bool, error) {
 	return productService.productRepository.Update(product)
 }
 
-func (productService *ProductService) Delete(id int64) (bool, error) {
+func (productService *productService) Delete(id int64) (bool, error) {
 	return productService.productRepository.Delete(id)
 }
 
-func (productService *ProductService) ExistById(id int64) bool{
+func (productService *productService) ExistById(id int64) bool {
 	return productService.productRepository.ExistById(id)
 }
 
-func (productService *ProductService) GetById(id int64) (*model.Product, error) {
+func (productService *productService) GetById(id int64) (*model.Product, error) {
 	return productService.productRepository.GetById(id)
 }
