@@ -8,9 +8,10 @@ import (
 type ProductService interface {
 	Create(product model.Product) (*model.Product, error)
 	Update(product model.Product) (bool, error)
-	Delete(id int64) (bool, error)
+	Delete(product model.Product) (bool, error)
 	ExistById(id int64) bool
 	GetById(id int64) (*model.Product, error)
+	List() ([]*model.Product, error)
 }
 
 type productService struct {
@@ -31,8 +32,8 @@ func (productService *productService) Update(product model.Product) (bool, error
 	return productService.productRepository.Update(product)
 }
 
-func (productService *productService) Delete(id int64) (bool, error) {
-	return productService.productRepository.Delete(id)
+func (productService *productService) Delete(product model.Product) (bool, error) {
+	return productService.productRepository.Delete(product)
 }
 
 func (productService *productService) ExistById(id int64) bool {
@@ -41,4 +42,8 @@ func (productService *productService) ExistById(id int64) bool {
 
 func (productService *productService) GetById(id int64) (*model.Product, error) {
 	return productService.productRepository.GetById(id)
+}
+
+func (productService *productService) List() ([]*model.Product, error) {
+	return productService.productRepository.List()
 }

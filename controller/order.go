@@ -30,9 +30,9 @@ func (orderController *orderController) Create(ctx *gin.Context) {
 
 	}
 
-	orderRes, err := orderController.orderService.Create(order)
+	res, err := orderController.orderService.Create(order)
 
-	ctx.JSON(http.StatusOK, gin.H{"msg": orderRes})
+	ctx.JSON(http.StatusOK, gin.H{"msg": res})
 }
 
 func (orderController *orderController) Update(ctx *gin.Context) {

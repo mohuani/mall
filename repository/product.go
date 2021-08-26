@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"log"
 	"mall/model"
@@ -9,9 +10,10 @@ import (
 type ProductRepository interface {
 	Create(product model.Product) (*model.Product, error)
 	Update(product model.Product) (bool, error)
-	Delete(id int64) (bool, error)
+	Delete(product model.Product) (bool, error)
 	ExistById(id int64) bool
 	GetById(id int64) (*model.Product, error)
+	List() ([]*model.Product, error)
 }
 
 type productRepository struct {
@@ -51,8 +53,9 @@ func (productRepository *productRepository) Update(product model.Product) (bool,
 	return true, nil
 }
 
-func (productRepository *productRepository) Delete(id int64) (bool, error) {
-	err := productRepository.DB.Where("id=?", id).Delete(model.Product{}).Error
+func (productRepository *productRepository) Delete(product model.Product) (bool, error) {
+	fmt.Println(product.ID)
+	err := productRepository.DB.Where("id=?", product.ID).Delete(&model.Product{}).Error
 	if err != nil {
 		log.Println("product删除失败")
 		return false, err
@@ -80,4 +83,14 @@ func (productRepository *productRepository) GetById(id int64) (*model.Product, e
 	}
 
 	return product, nil
+}
+
+func (productRepository *productRepository) List() (products []*model.Product, err error) {
+	err = productRepository.DB.Find(&products).Error
+	if err != nil {
+		log.Println("product查询失败")
+		return nil, err
+	}
+
+	return products, nil
 }

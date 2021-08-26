@@ -35,6 +35,8 @@ func main() {
 	{
 		product.POST("/create", productController.Create)
 		product.POST("/update", productController.Update)
+		product.GET("/delete", productController.Delete)
+		product.GET("/list", productController.List)
 	}
 
 	router.Run()
